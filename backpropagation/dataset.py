@@ -6,6 +6,9 @@ representing the intensities of the image for one digit between 0 and 9.
 
 Each row in MNISTnumLabels5000_balanced.txt has a label for
 the respective image (a value between 0 and 9).
+
+Author: Omar Alsayed (alsayeoy@mail.uc.edu).
+Date: 10-25-2020
 '''
 import random
 import numpy as np
@@ -33,15 +36,15 @@ def get_sets():
     for line in label_file:
         labels.append(line.strip())
 
-    sets.x_train = (images[:400] + images[499:899]   + images[999:1399] 
+    sets.x_train = (images[:399] + images[499:899]   + images[999:1399] 
         + images[1499:1899]      + images[1999:2399] + images[2499:2899]
         + images[2999:3399]      + images[3499:3899] + images[3999:4399]
-        + images[4499:4899])
+        + images[4499:4900])
 
-    sets.y_train = (labels[:400] + labels[499:899]   + labels[999:1399]  
+    sets.y_train = (labels[:399] + labels[499:899]   + labels[999:1399]  
         + labels[1499:1899]      + labels[1999:2399] + labels[2499:2899] 
         + labels[2999:3399]      + labels[3499:3899] + labels[3999:4399]
-        + labels[4499:4899])
+        + labels[4499:4900])
 
     data = list(zip(sets.x_train, sets.y_train))
     random.seed(50)
