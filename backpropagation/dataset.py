@@ -44,6 +44,7 @@ def get_sets():
         + labels[4499:4899])
 
     data = list(zip(sets.x_train, sets.y_train))
+    random.seed(50)
     random.shuffle(data) # Shuffle training set
     sets.x_train, sets.y_train = zip(*data)
 
@@ -61,6 +62,7 @@ def get_sets():
         + labels[4899:4999])
 
     data = list(zip(sets.x_test, sets.y_test))
+    random.seed(50)
     random.shuffle(data) # Shuffle testing set
     sets.x_test, sets.y_test = zip(*data)
 
