@@ -111,7 +111,7 @@ class Autoencoder:
             for digit in digits:
                 cumulative_losses.append(100 - np.mean(digit) / len(xp))
             total_loss = 100 - np.mean(ln) / len(xp)
-        return [100 - np.mean(losses) / len(xp), cumulative_losses, total_loss]
+        return [np.mean(losses) / len(xp), cumulative_losses, total_loss]
 
     def train_model(self, x_train, y_train, x_test, y_test, y_train_, y_test_):
         losses = []
