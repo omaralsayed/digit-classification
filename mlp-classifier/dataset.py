@@ -6,9 +6,6 @@ representing the intensities of the image for one digit between 0 and 9.
 
 Each row in MNISTnumLabels5000_balanced.txt has a label for
 the respective image (a value between 0 and 9).
-
-Author: Omar Alsayed (alsayeoy@mail.uc.edu).
-Date: 10-25-2020
 '''
 import random
 import numpy as np
