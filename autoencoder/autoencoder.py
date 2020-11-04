@@ -25,45 +25,32 @@ class Autoencoder:
 
     def initialize_dictionary(self):
         hyperparameters = {}
-
-        input_layer = self.neurons[0]
-        output_layer = self.neurons[len(self.neurons) - 1]
+        input_layer = self.neurons[0]; output_layer = self.neurons[len(self.neurons) - 1]
         layer_sizes = self.neurons[1:len(self.neurons) - 1] # Extract hidden layers
-
         hidden = { hidden: [] for hidden in range(self.layers) } 
         for x in range(len(layer_sizes)):
             hidden[x] = layer_sizes[x]
-        
-        hyperparameters['w1'] = np.random.randn(hidden[0], input_layer) * np.sqrt(1. / hidden[0])
+        hyperparameters['W1'] = np.random.randn(hidden[0], input_layer) * np.sqrt(1. / hidden[0])
         for x in range(self.layers-1):
-            hyperparameters['w' + str(x + 2)] = np.random.randn(hidden[x + 1], hidden[x]) * np.sqrt(1. / hidden[x + 1])
-        hyperparameters['w' + str(self.layers + 1)] = np.random.randn(output_layer, hidden[self.layers - 1]) * np.sqrt(1. / output_layer)
-
+            hyperparameters['W' + str(x + 2)] = np.random.randn(hidden[x + 1], hidden[x]) * np.sqrt(1. / hidden[x + 1])
+        hyperparameters['W' + str(self.layers + 1)] = np.random.randn(output_layer, hidden[self.layers - 1]) * np.sqrt(1. / output_layer)
         return hyperparameters
 
     def forward_pass(self, x_train):
         hyperparameters = self.hyperparameters
-
-        # Activation for input layer
-        hyperparameters['a0'] = x_train
-
-        # Traverse through the neural network
+        hyperparameters['A0'] = x_train
         for i in range(self.layers + 1):
-            hyperparameters['z' + str(i + 1)] = np.dot(hyperparameters['w' + str(i + 1)], hyperparameters['a' + str(i)])
-            hyperparameters['a' + str(i + 1)] = self.compute_sigmoid(hyperparameters['z' + str(i + 1)])
-        return hyperparameters['a' + str(self.layers + 1)]
+            hyperparameters['Z' + str(i + 1)] = np.dot(hyperparameters['W' + str(i + 1)], hyperparameters['A' + str(i)])
+            hyperparameters['A' + str(i + 1)] = self.compute_sigmoid(hyperparameters['Z' + str(i + 1)])
+        return hyperparameters['A' + str(self.layers + 1)]
 
     def backward_pass(self, y_train, output):
-        hyperparameters = self.hyperparameters
-
-        error = 2 * (output - y_train) / output.shape[0] * self.compute_sigmoid(hyperparameters['z' + str(self.layers + 1)], derivative=True)
-
-        w = {}
-        w['w' + str(self.layers + 1)] = np.outer(error, hyperparameters['a' + str(self.layers)])
-        
+        hyperparameters = self.hyperparameters; w = {}
+        error = 2 * (output - y_train) / output.shape[0] * self.compute_sigmoid(hyperparameters['Z' + str(self.layers + 1)], derivative=True)
+        w['W' + str(self.layers + 1)] = np.outer(error, hyperparameters['A' + str(self.layers)])
         for x in range(self.layers, 0, -1):
-            error = np.dot(hyperparameters['w' + str(x + 1)].T, error) * self.compute_sigmoid(hyperparameters['z' + str(x)], derivative=True)
-            w['w' + str(x)] = np.outer(error, hyperparameters['a' + str(x - 1)])
+            error = np.dot(hyperparameters['W' + str(x + 1)].T, error) * self.compute_sigmoid(hyperparameters['Z' + str(x)], derivative=True)
+            w['W' + str(x)] = np.outer(error, hyperparameters['A' + str(x - 1)])
         return w
 
     def update_w(self, w):
@@ -124,12 +111,10 @@ class Autoencoder:
             for digit in digits:
                 cumulative_losses.append(100 - np.mean(digit) / len(xp))
             total_loss = 100 - np.mean(ln) / len(xp)
-
         return [100 - np.mean(losses) / len(xp), cumulative_losses, total_loss]
 
     def train_model(self, x_train, y_train, x_test, y_test, y_train_, y_test_):
         losses = []
-        
         for epoch in range(self.epochs):
             for x, y in zip(x_train, y_train):
                 output = self.forward_pass(x)
@@ -151,7 +136,6 @@ class Autoencoder:
             self.compute_accuracy(x_test, x_test, y_test_)[1], self.compute_accuracy(x_test, x_test, y_test_)[2])
         itr_loss, losses_train, total_loss_train = (self.compute_accuracy(x_train, x_train, y_train_)[0], 
             self.compute_accuracy(x_train, x_train, y_train_)[1], self.compute_accuracy(x_train, x_train, y_train_)[2])
-
         self.show_plots(losses, losses_train, losses_test, total_loss_train, total_loss_test)
 
     def show_plots(self, accuracy, losses_train, losses_test, total_loss_train, total_loss_test):
@@ -204,7 +188,7 @@ class Autoencoder:
         figure.tight_layout(pad=0.1)
 
     def show_random_hidden_neurons(self):
-        neurons = self.hyperparameters['w1']
+        neurons = self.hyperparameters['W1']
         neuron = []
         for i in range(len(neurons)):
             neuron.append(neurons[i])
