@@ -60,6 +60,12 @@ class Autoencoder:
             else:
                 self.hyperparameters[wi] -= (self.momentum * self.alpha * wv)
 
+    def save_w(self):
+        w = open('weights.txt', 'w')
+        for wi in self.hyperparameters['W1']:
+            np.savetxt(w, wi)
+        w.close()
+
     def compute_sigmoid(self, x, derivative=False):
         if derivative:
             return (np.exp(-x)) / ((np.exp(-x) + 1) ** 2)
@@ -130,7 +136,7 @@ class Autoencoder:
                 losses.append(itr_loss)
             self.epoch += 1
 
-            print('Epoch: {0} ... Accuracy:'.format(epoch + 1), round(itr_loss, 2))
+            print('Epoch: {0} ... Loss:'.format(epoch + 1), round(itr_loss, 2))
 
         itr_loss, losses_test, total_loss_test = (self.compute_accuracy(x_test, x_test, y_test_)[0], 
             self.compute_accuracy(x_test, x_test, y_test_)[1], self.compute_accuracy(x_test, x_test, y_test_)[2])
@@ -219,6 +225,11 @@ def main():
 
     auto = Autoencoder(layers=hidden_layers, neurons=neurons_list)
     auto.train_model(mnist.x_train, mnist.x_train, mnist.x_test, mnist.x_test, mnist.y_train_, mnist.y_test_)
+
+    # Store final weights
+    auto.save_w()
+
+    # Generate plots
     auto.show_image_reconstruction(mnist.x_test[:8])
     auto.show_random_hidden_neurons()
     plt.show()
