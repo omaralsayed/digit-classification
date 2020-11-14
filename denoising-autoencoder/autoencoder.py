@@ -12,7 +12,7 @@ import pandas as pd
 mnist = dataset.get_sets()
 
 class Autoencoder:
-    def __init__(self, layers, neurons, epoch=0, epochs=500, learning_rate=0.3, min_learning_rate=0.0025, momentum=0.9):
+    def __init__(self, layers, neurons, epoch=0, epochs=1000, learning_rate=0.2, min_learning_rate=0.0025, momentum=0.9):
         self.neurons = neurons # List of nerons for Autoencoder
         self.epoch = epoch
         self.epochs = epochs
@@ -53,6 +53,19 @@ class Autoencoder:
             w['W' + str(x)] = np.outer(error, hyperparameters['A' + str(x - 1)])
         return w
 
+    def noise(self, x):
+        mean = 0.5
+        std = 0.3
+        x_noise = x.copy()
+        for n_rows in range(len(x)):
+            for _ in range(len(x[n_rows])):
+                noise = np.random.normal(mean, std, (len(x[n_rows])))
+                temp = x_noise[n_rows]
+                temp = temp + noise
+                if (temp.all() < 1):
+                    x_noise[n_rows] = x_noise[n_rows] + noise
+        return x_noise
+
     def update_w(self, w):
         for wi, wv in w.items():
             if self.epoch == 0:
@@ -61,7 +74,7 @@ class Autoencoder:
                 self.hyperparameters[wi] -= (self.momentum * self.alpha * wv)
 
     def save_w(self):
-        w = open('weights.txt', 'w')
+        w = open('weights-denoising.txt', 'w')
         for wi in self.hyperparameters['W1']:
             np.savetxt(w, wi)
         w.close()
@@ -121,8 +134,9 @@ class Autoencoder:
 
     def train_model(self, x_train, y_train, x_test, y_test, y_train_, y_test_):
         losses = []
+        x_noise = self.noise(x_train)
         for epoch in range(self.epochs):
-            for x, y in zip(x_train, y_train):
+            for x, y in zip(x_noise, y_train):
                 output = self.forward_pass(x)
                 w = self.backward_pass(y, output)
                 self.update_w(w)
@@ -144,16 +158,16 @@ class Autoencoder:
             self.compute_accuracy(x_train, x_train, y_train_)[1], self.compute_accuracy(x_train, x_train, y_train_)[2])
         self.show_plots(losses, losses_train, losses_test, total_loss_train, total_loss_test)
 
-    def show_plots(self, accuracy, losses_train, losses_test, total_loss_train, total_loss_test):
+    def show_plots(self, error, losses_train, losses_test, total_loss_train, total_loss_test):
         span = np.arange(0, self.epochs, 10)
 
         '''
-        Overall Accuracy Plot
+        Overall Error Plot
         '''
         plt.figure(0)
-        plt.plot(span, accuracy)
-        plt.title('Overall Accuracy Over 500 Epochs')
-        plt.ylabel('Accuracy')
+        plt.plot(span, error)
+        plt.title('Overall Error Over 1000 Epochs')
+        plt.ylabel('Error')
         plt.xlabel('Epochs')
 
         '''
@@ -168,7 +182,7 @@ class Autoencoder:
         plt.bar(bar_test, losses_test, width = 0.15, label='Test')
         plt.xticks([r + 0.15 for r in range(len(losses_train))], digits)
         plt.legend()
-        plt.title('Accuracy Per Digit Over 500 Epochs')
+        plt.title('Accuracy Per Digit Over 1000 Epochs')
         plt.xlabel('Digits')
         plt.ylabel('Accuracy')
 
@@ -180,7 +194,7 @@ class Autoencoder:
         plt.bar(bar_train, total_loss_train, width = 0.15, label='Train')
         plt.bar(bar_test, total_loss_test, width = 0.15, label='Test')
         plt.legend()
-        plt.title('Train and Test Accuracy Over 500 Epochs')
+        plt.title('Train and Test Accuracy Over 1000 Epochs')
         plt.xlabel('Data Labels')
         plt.ylabel('Accuracy')
 
