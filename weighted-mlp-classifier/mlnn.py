@@ -47,7 +47,7 @@ class MLNN:
         hyperparameters = self.hyperparameters; w = {}
         error = 2 * (output - y_train) / output.shape[0] * self.compute_softmax(hyperparameters['Z' + str(self.layers + 1)], derivative=True)
         w['W' + str(self.layers + 1)] = np.outer(error, hyperparameters['A' + str(self.layers)])
-        for x in range(self.layers, 1, -1):
+        for x in range(self.layers, 1, -1): # Updated stopping point from 0 to 1 to not update input weights
             error = np.dot(hyperparameters['W' + str(x + 1)].T, error) * self.compute_sigmoid(hyperparameters['Z' + str(x)], derivative=True)
             w['W' + str(x)] = np.outer(error, hyperparameters['A' + str(x - 1)])
         return w
