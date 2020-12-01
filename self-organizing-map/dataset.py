@@ -16,6 +16,9 @@ class MNIST():
     x_test  = [None] * 1000
     y_test  = [None] * 1000
 
+    y_train_ = [None] * 4000
+    y_test_  = [None] * 1000
+
 def get_sets():
     sets = MNIST()
 
@@ -50,6 +53,8 @@ def get_sets():
 
     sets.x_train = np.array(sets.x_train).astype('float32')
     sets.y_train = np.array(sets.y_train).astype(int)
+    sets.y_train_ = sets.y_train
+    sets.y_train_ = list(map(str, sets.y_train_))
 
     sets.x_test = (images[399:499] + images[899:999]   + images[1399:1499] 
         + images[1899:1999]        + images[2399:2499] + images[2899:2999] 
@@ -68,6 +73,8 @@ def get_sets():
 
     sets.x_test = np.array(sets.x_test).astype('float32')
     sets.y_test = np.array(sets.y_test).astype(int)
+    sets.y_test_ = sets.y_test
+    sets.y_test_ = list(map(str, sets.y_test_))
 
     sets.y_train = encode(10, sets.y_train)
     sets.y_test  = encode(10, sets.y_test)
